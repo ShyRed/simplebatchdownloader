@@ -89,7 +89,9 @@ namespace SimpleBatchDownloader
                     }
                 }
 
+                var filter = new Regex(textBoxFilter.Text, RegexOptions.Singleline | RegexOptions.IgnoreCase);
                 listViewDownloadItems.SuspendLayout();
+
                 listViewDownloadItems.Items.Clear();
                 listViewDownloadItems.Items.AddRange(urls.OrderBy(url => url).Select(url => new ListViewItem(new[] {
                     MakeFilename(url),
@@ -97,7 +99,11 @@ namespace SimpleBatchDownloader
                     string.Empty,
                     string.Empty
                 })
-                { Checked = url.EndsWith(textBoxFilter.Text, StringComparison.OrdinalIgnoreCase) }).ToArray());
+                { Checked = filter.IsMatch(url) }).ToArray());
+
+                if (checkBoxOnlyOne.Checked)
+                    SelectOnlyOneFilePerGroup();
+
                 listViewDownloadItems.ResumeLayout();
 
                 progressBarProgress.Value = 0;
@@ -112,10 +118,18 @@ namespace SimpleBatchDownloader
 
         private void buttonSelectAll_Click(object sender, EventArgs e)
         {
+            var filter = new Regex(textBoxFilter.Text, RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
             listViewDownloadItems.ItemChecked -= listViewDownloadItems_ItemChecked;
+
             foreach (ListViewItem item in listViewDownloadItems.Items)
-                item.Checked = item.SubItems[0].Text.EndsWith(textBoxFilter.Text, StringComparison.OrdinalIgnoreCase);
+                item.Checked = filter.IsMatch(item.SubItems[0].Text);
+
+            if (checkBoxOnlyOne.Checked)
+                SelectOnlyOneFilePerGroup();
+
             listViewDownloadItems.ItemChecked += listViewDownloadItems_ItemChecked;
+
             toolStripStatusLabelSelectionCount.Text = $"{listViewDownloadItems.CheckedItems.Count} Urls selected";
         }
 
@@ -165,6 +179,12 @@ namespace SimpleBatchDownloader
                     await Task.Delay(100 + (int)(rnd.NextDouble() * 500)); // Don't flood server with requests...
                 }
 
+                if (File.Exists(filename) && filename.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) && checkBoxExtractZipFiles.Checked)
+                {
+                    item.SubItems[2].Text = "Extracting...";
+                    item.SubItems[2].Text = await ExtractZipFile(filename);
+                }
+
                 progress++;
                 progressBarProgress.Value = progress;
             }
@@ -190,6 +210,31 @@ namespace SimpleBatchDownloader
                 item.SubItems[3].Text = MakeSize(e.TotalBytesToReceive);
         }
 
+        private void SelectOnlyOneFilePerGroup()
+        {
+            var currentGroup = string.Empty;
+            for (int i = 0; i < listViewDownloadItems.Items.Count; i++)
+            {
+                var item = listViewDownloadItems.Items[i];
+                if (!item.Checked)
+                    continue;
+
+                var group = MakeGroup(item.SubItems[0].Text);
+                if (group == currentGroup)
+                    item.Checked = false;
+                else
+                    currentGroup = group;
+            }
+        }
+
+        private string MakeGroup(string filename)
+        {
+            for (int i = 0; i < filename.Length; i++)
+                if (!char.IsLetterOrDigit(filename[i]) && !char.IsWhiteSpace(filename[i]))
+                    return i == 0 ? string.Empty : filename.Substring(0, i);
+            return filename;
+        }
+
         private async Task<string> Download(string url, string targetFile)
         {
             try
@@ -199,13 +244,31 @@ namespace SimpleBatchDownloader
                     client.DownloadProgressChanged += Client_DownloadProgressChanged;
                     await client.DownloadFileTaskAsync(url, targetFile);
                     client.DownloadProgressChanged -= Client_DownloadProgressChanged;
-                    return "Ok";
+                    return "Downloaded";
                 }
             }
             catch (Exception ex)
             {
                 return ex.Message;
             }
+        }
+
+
+        private Task<string> ExtractZipFile(string filename)
+        {
+            return Task.Run<string>(() =>
+            {
+                try
+                {
+                    var fileInfo = new FileInfo(filename);
+                    System.IO.Compression.ZipFile.ExtractToDirectory(filename, fileInfo.DirectoryName);
+                    return "Downloaded & Extracted";
+                }
+                catch (Exception ex)
+                {
+                    return ex.Message;
+                }
+            });
         }
 
         private void SetDownloading(bool downloading)

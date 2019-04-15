@@ -2,7 +2,11 @@
 [![Build Status](https://travis-ci.com/ShyRed/simplebatchdownloader.svg?branch=master)](https://travis-ci.com/ShyRed/simplebatchdownloader)
 
 # Simple Batch Downloader
-A *very* simple batch downloader written in C# using WinForms.
+A *very* simple batch downloader written in C# using WinForms:
 
-- Fetch Urls from Websites or read urls.txt
+- Configure proxy settings
+- Fetch Urls from Websites or urls.txt
+- Filter via Regex
+- Export urls.txt
+- Remove number prefixes from filenames
 - Runs on both Windows and Linux (using Mono)

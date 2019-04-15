@@ -47,6 +47,7 @@ namespace SimpleBatchDownloader
 
             toolStripStatusLabelUrlCount.Text = $"{listViewDownloadItems.Items.Count} Urls loaded";
             toolStripStatusLabelSelectionCount.Text = $"{listViewDownloadItems.CheckedItems.Count} Urls selected";
+            buttonExportUrlsTxt.Enabled = listViewDownloadItems.CheckedItems.Count > 0;
         }
 
         private void buttonBrowseTargetFolder_Click(object sender, EventArgs e)
@@ -66,7 +67,17 @@ namespace SimpleBatchDownloader
             {
                 if (path.StartsWith("http", StringComparison.OrdinalIgnoreCase))
                 {
-                    using(var client = new HttpClient())
+                    var httpClientHandler = new HttpClientHandler();
+                    if (checkBoxUseProxy.Checked)
+                    {
+                        httpClientHandler.UseProxy = true;
+                        httpClientHandler.Proxy = new WebProxy(textBoxProxyUrl.Text)
+                        {
+                            Credentials = new NetworkCredential(textBoxUsername.Text, textBoxPassword.Text)
+                        };
+                    }
+
+                    using (var client = new HttpClient(httpClientHandler))
                     {
                         var result = await client.GetAsync(path);
                         if (!result.IsSuccessStatusCode)
@@ -93,13 +104,13 @@ namespace SimpleBatchDownloader
                 listViewDownloadItems.SuspendLayout();
 
                 listViewDownloadItems.Items.Clear();
-                listViewDownloadItems.Items.AddRange(urls.OrderBy(url => url).Select(url => new ListViewItem(new[] {
+                listViewDownloadItems.Items.AddRange(urls.Select(url => new ListViewItem(new[] {
                     MakeFilename(url),
                     MakeFullUrl(path, url),
                     string.Empty,
                     string.Empty
                 })
-                { Checked = filter.IsMatch(url) }).ToArray());
+                { Checked = filter.IsMatch(url) }).OrderBy(item => item.SubItems[0].Text).ToArray());
 
                 if (checkBoxOnlyOne.Checked)
                     SelectOnlyOneFilePerGroup();
@@ -131,6 +142,7 @@ namespace SimpleBatchDownloader
             listViewDownloadItems.ItemChecked += listViewDownloadItems_ItemChecked;
 
             toolStripStatusLabelSelectionCount.Text = $"{listViewDownloadItems.CheckedItems.Count} Urls selected";
+            buttonExportUrlsTxt.Enabled = listViewDownloadItems.CheckedItems.Count > 0;
         }
 
         private void buttonDeselectAll_Click(object sender, EventArgs e)
@@ -140,11 +152,13 @@ namespace SimpleBatchDownloader
                 item.Checked = false;
             listViewDownloadItems.ItemChecked += listViewDownloadItems_ItemChecked;
             toolStripStatusLabelSelectionCount.Text = $"{listViewDownloadItems.CheckedItems.Count} Urls selected";
+            buttonExportUrlsTxt.Enabled = false;
         }
 
         private void listViewDownloadItems_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
             toolStripStatusLabelSelectionCount.Text = $"{listViewDownloadItems.CheckedItems.Count} Urls selected";
+            buttonExportUrlsTxt.Enabled = listViewDownloadItems.CheckedItems.Count > 0;
         }
 
         private async void buttonDownload_Click(object sender, EventArgs e)
@@ -210,6 +224,73 @@ namespace SimpleBatchDownloader
                 item.SubItems[3].Text = MakeSize(e.TotalBytesToReceive);
         }
 
+        private void toolStripStatusLabelGitHub_Click(object sender, EventArgs e)
+        {
+            using (var process = new System.Diagnostics.Process())
+            {
+                process.StartInfo.UseShellExecute = true;
+                process.StartInfo.FileName = "https://github.com/ShyRed/simplebatchdownloader";
+                process.Start();
+            }
+        }
+
+        private void checkBoxUseProxy_CheckedChanged(object sender, EventArgs e)
+        {
+            var enabled = checkBoxUseProxy.Checked;
+            textBoxUsername.Enabled = enabled;
+            textBoxPassword.Enabled = enabled;
+            textBoxProxyUrl.Enabled = enabled;
+        }
+
+        private async void buttonExportUrlsTxt_Click(object sender, EventArgs e)
+        {
+            if (saveFileDialogUrlsTxt.ShowDialog() != DialogResult.OK)
+                return;
+
+            var filename = saveFileDialogUrlsTxt.FileName;
+
+            buttonExportUrlsTxt.Enabled = false;
+
+            try
+            {
+                using (var file = new StreamWriter(filename, false, System.Text.Encoding.UTF8))
+                {
+                    foreach (ListViewItem item in listViewDownloadItems.Items)
+                    {
+                        if (!item.Checked)
+                            continue;
+
+                        await file.WriteLineAsync(item.SubItems[1].Text);
+                    }
+                    await file.FlushAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to save \"{filename}\": {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                buttonExportUrlsTxt.Enabled = true;
+            }
+        }
+
+        private void fileRenameOption_CheckedChanged(object sender, EventArgs e)
+        {
+            var items = listViewDownloadItems.Items.Cast<ListViewItem>().ToArray();
+
+            listViewDownloadItems.SuspendLayout();
+            listViewDownloadItems.ItemChecked -= listViewDownloadItems_ItemChecked;
+
+            listViewDownloadItems.Items.Clear();
+            foreach (var item in items)
+                item.SubItems[0].Text = MakeFilename(item.SubItems[1].Text);
+            listViewDownloadItems.Items.AddRange(items.OrderBy(item => item.SubItems[0].Text).ToArray());
+
+            listViewDownloadItems.ItemChecked += listViewDownloadItems_ItemChecked;
+            listViewDownloadItems.ResumeLayout();
+        }
+
         private void SelectOnlyOneFilePerGroup()
         {
             var currentGroup = string.Empty;
@@ -241,6 +322,14 @@ namespace SimpleBatchDownloader
             {
                 using (var client = new WebClient())
                 {
+                    if (checkBoxUseProxy.Checked)
+                    {
+                        client.Proxy = new WebProxy(textBoxProxyUrl.Text)
+                        {
+                            Credentials = new NetworkCredential(textBoxUsername.Text, textBoxPassword.Text)
+                        };
+                    }
+
                     client.DownloadProgressChanged += Client_DownloadProgressChanged;
                     await client.DownloadFileTaskAsync(url, targetFile);
                     client.DownloadProgressChanged -= Client_DownloadProgressChanged;
@@ -284,14 +373,27 @@ namespace SimpleBatchDownloader
 
             buttonDownload.Enabled = !downloading;
             buttonAbortDownload.Enabled = downloading;
+
+            checkBoxRemoveLeadingNumbersAndSymbols.Enabled = !downloading;
         }
 
-        private static string MakeFilename(string url)
+        private string MakeFilename(string url)
         {
             int last = url.LastIndexOf('/');
             if (last >= 0)
                 url = url.Substring(last + 1);
             url = WebUtility.UrlDecode(url);
+
+            if (checkBoxRemoveLeadingNumbersAndSymbols.Checked)
+            {
+                while(url.Length > 4)
+                {
+                    if (!char.IsLetter(url[0]))
+                        url = url.Substring(1);
+                    else
+                        break;
+                }
+            }
             return url;
         }
 
@@ -323,16 +425,6 @@ namespace SimpleBatchDownloader
 
             size /= 1024;
             return $"{size:0.0} GB";
-        }
-
-        private void toolStripStatusLabelGitHub_Click(object sender, EventArgs e)
-        {
-            using (var process = new System.Diagnostics.Process())
-            {
-                process.StartInfo.UseShellExecute = true;
-                process.StartInfo.FileName = "https://github.com/ShyRed/simplebatchdownloader";
-                process.Start();
-            }
         }
     }
 }

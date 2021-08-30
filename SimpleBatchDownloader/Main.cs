@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -100,31 +100,36 @@ namespace SimpleBatchDownloader
                     }
                 }
 
-                var filter = new Regex(textBoxFilter.Text, RegexOptions.Singleline | RegexOptions.IgnoreCase);
-                listViewDownloadItems.SuspendLayout();
-
-                listViewDownloadItems.Items.Clear();
-                listViewDownloadItems.Items.AddRange(urls.Select(url => new ListViewItem(new[] {
-                    MakeFilename(url),
-                    MakeFullUrl(path, url),
-                    string.Empty,
-                    string.Empty
-                })
-                { Checked = filter.IsMatch(url) }).OrderBy(item => item.SubItems[0].Text).ToArray());
-
-                if (checkBoxOnlyOne.Checked)
-                    SelectOnlyOneFilePerGroup();
-
-                listViewDownloadItems.ResumeLayout();
-
-                progressBarProgress.Value = 0;
-
-                buttonDownload.Enabled = listViewDownloadItems.Items.Count > 0;
+                FillLines(urls, path);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to open \"{path}\": {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void FillLines(List<string> urls, string path)
+        {
+            var filter = new Regex(textBoxFilter.Text, RegexOptions.Singleline | RegexOptions.IgnoreCase);
+            listViewDownloadItems.SuspendLayout();
+
+            listViewDownloadItems.Items.Clear();
+            listViewDownloadItems.Items.AddRange(urls.Select(url => new ListViewItem(new[] {
+                    MakeFilename(url),
+                    MakeFullUrl(path, url),
+                    string.Empty,
+                    string.Empty
+                })
+            { Checked = filter.IsMatch(url) }).OrderBy(item => item.SubItems[0].Text).ToArray());
+
+            if (checkBoxOnlyOne.Checked)
+                SelectOnlyOneFilePerGroup();
+
+            listViewDownloadItems.ResumeLayout();
+
+            progressBarProgress.Value = 0;
+
+            buttonDownload.Enabled = listViewDownloadItems.Items.Count > 0;
         }
 
         private void buttonSelectAll_Click(object sender, EventArgs e)
@@ -425,6 +430,16 @@ namespace SimpleBatchDownloader
 
             size /= 1024;
             return $"{size:0.0} GB";
+        }
+
+        private void KeyDownEventMonitor(object sender, KeyEventArgs e)
+        { 
+            if (e.KeyCode == Keys.V && e.Control) 
+            {
+                var lines=System.Windows.Forms.Clipboard.GetText().Split(Environment.NewLine.ToCharArray()[0]).Select(url=>url.Trim()).ToList();
+                FillLines(lines, "");
+            }
+
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace SimpleBatchDownloader
+namespace SimpleBatchDownloader
 {
     partial class Main
     {
@@ -69,9 +69,9 @@
             this.label1 = new System.Windows.Forms.Label();
             this.textBoxProxyUrl = new System.Windows.Forms.TextBox();
             this.checkBoxUseProxy = new System.Windows.Forms.CheckBox();
-            this.saveFileDialogUrlsTxt = new System.Windows.Forms.SaveFileDialog();
             this.tabPageFileRenaming = new System.Windows.Forms.TabPage();
             this.checkBoxRemoveLeadingNumbersAndSymbols = new System.Windows.Forms.CheckBox();
+            this.saveFileDialogUrlsTxt = new System.Windows.Forms.SaveFileDialog();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -118,7 +118,7 @@
             this.checkBoxOnlyOne.AutoSize = true;
             this.checkBoxOnlyOne.Location = new System.Drawing.Point(383, 73);
             this.checkBoxOnlyOne.Name = "checkBoxOnlyOne";
-            this.checkBoxOnlyOne.Size = new System.Drawing.Size(163, 17);
+            this.checkBoxOnlyOne.Size = new System.Drawing.Size(187, 19);
             this.checkBoxOnlyOne.TabIndex = 12;
             this.checkBoxOnlyOne.Text = "Select only one file per group";
             this.checkBoxOnlyOne.UseVisualStyleBackColor = true;
@@ -128,7 +128,7 @@
             this.labelFilterByExtension.AutoSize = true;
             this.labelFilterByExtension.Location = new System.Drawing.Point(12, 74);
             this.labelFilterByExtension.Name = "labelFilterByExtension";
-            this.labelFilterByExtension.Size = new System.Drawing.Size(63, 13);
+            this.labelFilterByExtension.Size = new System.Drawing.Size(73, 15);
             this.labelFilterByExtension.TabIndex = 11;
             this.labelFilterByExtension.Text = "Regex Filter";
             // 
@@ -164,7 +164,7 @@
             this.labelDownloadFolder.AutoSize = true;
             this.labelDownloadFolder.Location = new System.Drawing.Point(12, 46);
             this.labelDownloadFolder.Name = "labelDownloadFolder";
-            this.labelDownloadFolder.Size = new System.Drawing.Size(87, 13);
+            this.labelDownloadFolder.Size = new System.Drawing.Size(101, 15);
             this.labelDownloadFolder.TabIndex = 7;
             this.labelDownloadFolder.Text = "Download Folder";
             // 
@@ -207,7 +207,7 @@
             this.labelWebsiteUrls.AutoSize = true;
             this.labelWebsiteUrls.Location = new System.Drawing.Point(12, 17);
             this.labelWebsiteUrls.Name = "labelWebsiteUrls";
-            this.labelWebsiteUrls.Size = new System.Drawing.Size(87, 13);
+            this.labelWebsiteUrls.Size = new System.Drawing.Size(95, 15);
             this.labelWebsiteUrls.TabIndex = 0;
             this.labelWebsiteUrls.Text = "Website / urls.txt";
             // 
@@ -218,7 +218,7 @@
             this.panel2.Controls.Add(this.buttonAbortDownload);
             this.panel2.Controls.Add(this.progressBarProgress);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 357);
+            this.panel2.Location = new System.Drawing.Point(0, 351);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(805, 69);
             this.panel2.TabIndex = 1;
@@ -250,7 +250,7 @@
             this.checkBoxExtractZipFiles.AutoSize = true;
             this.checkBoxExtractZipFiles.Location = new System.Drawing.Point(12, 26);
             this.checkBoxExtractZipFiles.Name = "checkBoxExtractZipFiles";
-            this.checkBoxExtractZipFiles.Size = new System.Drawing.Size(100, 17);
+            this.checkBoxExtractZipFiles.Size = new System.Drawing.Size(112, 19);
             this.checkBoxExtractZipFiles.TabIndex = 3;
             this.checkBoxExtractZipFiles.Text = "Extract ZIP files";
             this.checkBoxExtractZipFiles.UseVisualStyleBackColor = true;
@@ -260,7 +260,7 @@
             this.checkBoxOverwrite.AutoSize = true;
             this.checkBoxOverwrite.Location = new System.Drawing.Point(12, 6);
             this.checkBoxOverwrite.Name = "checkBoxOverwrite";
-            this.checkBoxOverwrite.Size = new System.Drawing.Size(130, 17);
+            this.checkBoxOverwrite.Size = new System.Drawing.Size(150, 19);
             this.checkBoxOverwrite.TabIndex = 2;
             this.checkBoxOverwrite.Text = "Overwrite existing files";
             this.checkBoxOverwrite.UseVisualStyleBackColor = true;
@@ -296,13 +296,15 @@
             this.listViewDownloadItems.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listViewDownloadItems.GridLines = true;
             this.listViewDownloadItems.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.listViewDownloadItems.HideSelection = false;
             this.listViewDownloadItems.Location = new System.Drawing.Point(0, 130);
             this.listViewDownloadItems.Name = "listViewDownloadItems";
-            this.listViewDownloadItems.Size = new System.Drawing.Size(805, 227);
+            this.listViewDownloadItems.Size = new System.Drawing.Size(805, 221);
             this.listViewDownloadItems.TabIndex = 2;
             this.listViewDownloadItems.UseCompatibleStateImageBehavior = false;
             this.listViewDownloadItems.View = System.Windows.Forms.View.Details;
             this.listViewDownloadItems.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.listViewDownloadItems_ItemChecked);
+            this.listViewDownloadItems.KeyDown += new System.Windows.Forms.KeyEventHandler(this.KeyDownEventMonitor);
             // 
             // columnHeaderFile
             // 
@@ -331,13 +333,14 @@
             // 
             // statusStrip1
             // 
+            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabelUrlCount,
             this.toolStripStatusLabelSelectionCount,
             this.toolStripStatusLabelGitHub});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 426);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 420);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(805, 24);
+            this.statusStrip1.Size = new System.Drawing.Size(805, 30);
             this.statusStrip1.TabIndex = 3;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -347,7 +350,7 @@
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
             this.toolStripStatusLabelUrlCount.Name = "toolStripStatusLabelUrlCount";
-            this.toolStripStatusLabelUrlCount.Size = new System.Drawing.Size(89, 19);
+            this.toolStripStatusLabelUrlCount.Size = new System.Drawing.Size(113, 24);
             this.toolStripStatusLabelUrlCount.Text = "No Urls loaded";
             // 
             // toolStripStatusLabelSelectionCount
@@ -356,14 +359,14 @@
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
             this.toolStripStatusLabelSelectionCount.Name = "toolStripStatusLabelSelectionCount";
-            this.toolStripStatusLabelSelectionCount.Size = new System.Drawing.Size(96, 19);
+            this.toolStripStatusLabelSelectionCount.Size = new System.Drawing.Size(121, 24);
             this.toolStripStatusLabelSelectionCount.Text = "No Urls selected";
             // 
             // toolStripStatusLabelGitHub
             // 
             this.toolStripStatusLabelGitHub.IsLink = true;
             this.toolStripStatusLabelGitHub.Name = "toolStripStatusLabelGitHub";
-            this.toolStripStatusLabelGitHub.Size = new System.Drawing.Size(605, 19);
+            this.toolStripStatusLabelGitHub.Size = new System.Drawing.Size(556, 24);
             this.toolStripStatusLabelGitHub.Spring = true;
             this.toolStripStatusLabelGitHub.Text = "Visit GitHub";
             this.toolStripStatusLabelGitHub.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -415,7 +418,7 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(103, 69);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(53, 13);
+            this.label3.Size = new System.Drawing.Size(61, 15);
             this.label3.TabIndex = 6;
             this.label3.Text = "Password";
             // 
@@ -433,7 +436,7 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(103, 43);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(55, 13);
+            this.label2.Size = new System.Drawing.Size(65, 15);
             this.label2.TabIndex = 4;
             this.label2.Text = "Username";
             // 
@@ -450,7 +453,7 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(103, 17);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(89, 13);
+            this.label1.Size = new System.Drawing.Size(100, 15);
             this.label1.TabIndex = 2;
             this.label1.Text = "Proxy IP and Port";
             // 
@@ -468,17 +471,11 @@
             this.checkBoxUseProxy.AutoSize = true;
             this.checkBoxUseProxy.Location = new System.Drawing.Point(8, 16);
             this.checkBoxUseProxy.Name = "checkBoxUseProxy";
-            this.checkBoxUseProxy.Size = new System.Drawing.Size(74, 17);
+            this.checkBoxUseProxy.Size = new System.Drawing.Size(84, 19);
             this.checkBoxUseProxy.TabIndex = 0;
             this.checkBoxUseProxy.Text = "Use Proxy";
             this.checkBoxUseProxy.UseVisualStyleBackColor = true;
             this.checkBoxUseProxy.CheckedChanged += new System.EventHandler(this.checkBoxUseProxy_CheckedChanged);
-            // 
-            // saveFileDialogUrlsTxt
-            // 
-            this.saveFileDialogUrlsTxt.DefaultExt = "txt";
-            this.saveFileDialogUrlsTxt.Filter = "Text files|*.txt|All files|*.*";
-            this.saveFileDialogUrlsTxt.Title = "Export Urls.txt";
             // 
             // tabPageFileRenaming
             // 
@@ -496,11 +493,17 @@
             this.checkBoxRemoveLeadingNumbersAndSymbols.AutoSize = true;
             this.checkBoxRemoveLeadingNumbersAndSymbols.Location = new System.Drawing.Point(8, 16);
             this.checkBoxRemoveLeadingNumbersAndSymbols.Name = "checkBoxRemoveLeadingNumbersAndSymbols";
-            this.checkBoxRemoveLeadingNumbersAndSymbols.Size = new System.Drawing.Size(207, 17);
+            this.checkBoxRemoveLeadingNumbersAndSymbols.Size = new System.Drawing.Size(243, 19);
             this.checkBoxRemoveLeadingNumbersAndSymbols.TabIndex = 0;
             this.checkBoxRemoveLeadingNumbersAndSymbols.Text = "Remove leading numbers and symbols";
             this.checkBoxRemoveLeadingNumbersAndSymbols.UseVisualStyleBackColor = true;
             this.checkBoxRemoveLeadingNumbersAndSymbols.CheckedChanged += new System.EventHandler(this.fileRenameOption_CheckedChanged);
+            // 
+            // saveFileDialogUrlsTxt
+            // 
+            this.saveFileDialogUrlsTxt.DefaultExt = "txt";
+            this.saveFileDialogUrlsTxt.Filter = "Text files|*.txt|All files|*.*";
+            this.saveFileDialogUrlsTxt.Title = "Export Urls.txt";
             // 
             // Main
             // 
@@ -514,6 +517,7 @@
             this.MinimumSize = new System.Drawing.Size(764, 489);
             this.Name = "Main";
             this.Text = "Simple Batch Downloader";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.KeyDownEventMonitor);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
